@@ -8,7 +8,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <HelmetProvider>
       <CssBaseline />
-      <App />
+    {/* <div onContextMenu={event => event.preventDefault() }> */}
+    <App />
+    {/* </div> */}
     </HelmetProvider>
   </React.StrictMode>
 );

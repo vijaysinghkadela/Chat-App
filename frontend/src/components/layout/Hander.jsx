@@ -1,14 +1,15 @@
 import {
   AppBar,
+  Backdrop,
   Box,
   Icon,
   IconButton,
   Toolbar,
   Tooltip,
   Typography,
-  lazy,
 } from "@mui/material";
-import React, { Suspense } from "react";
+
+import React, { Suspense, lazy  } from "react";
 import { orange } from "../../constants/color";
 import {
   Add as AddIcon,
@@ -129,19 +130,19 @@ const Hander = () => {
       </Box>
 
       {isSearch && (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<Backdrop open />}>
           <SearchDialog />
         </Suspense>
       )}
 
       {isNotification && (
-        <Suspense fallback={<div>Loading...</div>}>
+         <Suspense fallback={<Backdrop open />}>
           <NotificationDialog />
         </Suspense>
       )}
 
       {isNewGroup && (
-        <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<Backdrop open />}>
           <NewGroupDialog />
         </Suspense>
       )}
