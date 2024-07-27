@@ -2,23 +2,22 @@ import {
   AppBar,
   Backdrop,
   Box,
-  Icon,
   IconButton,
   Toolbar,
   Tooltip,
-  Typography,
+  Typography
 } from "@mui/material";
 
-import React, { Suspense, lazy  } from "react";
-import { orange } from "../../constants/color";
 import {
   Add as AddIcon,
-  Menu as MenuIcon,
-  Search as SearchIcon,
   Group as GroupIcon,
   Logout as LogoutIcon,
+  Menu as MenuIcon,
   Notifications as NotificationsIcon,
+  Search as SearchIcon,
 } from "@mui/icons-material";
+import React, { Suspense, lazy } from "react";
+import { orange } from "../../constants/color";
 
 import { useNavigate } from "react-router-dom";
 
