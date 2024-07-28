@@ -15,6 +15,7 @@ import { CameraAlt as CameraAltIcon } from "@mui/icons-material";
 import { VisuallyHiddenInput } from "../components/Styles/StyledComponents";
 import { useFileHandler, useInputValidation, useStrongPassword } from "6pp";
 import { usernameValidator } from "../utils/validators";
+import { bgGradient } from "../constants/color";
 
 const theme = createTheme({
   palette: {
@@ -48,7 +49,7 @@ const Login = () => {
     
       style={{
          backgroundImage:
-          "liner-gradient(rgba(200,200,200,0.5),rgba(120,110,220,0.5))",
+          bgGradient,
       }}
     >
       <Container

@@ -1,5 +1,5 @@
 import React from "react";
-import Hander from "./Hander";
+import Header from "./Header.jsx";
 import Title from "../shared/Title.jsx";
 import { Grid } from "@mui/material";
 import ChatList from "../Specific/ChatList.jsx";
@@ -20,7 +20,7 @@ const AppLayout = () => (WrappedComponent) => {
     return (
       <>
         <Title />
-        <Hander />
+        <Header />
 
         <Grid container height={"calc(100vh - 4rem )"}>
           <Grid
