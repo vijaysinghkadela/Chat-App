@@ -1,7 +1,7 @@
 import { Stack } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import AdminLayout from "../../components/layout/AdminLayout";
-import  AvatarCard  from "../../components/shared/AvatarCard";
+import AvatarCard from "../../components/shared/AvatarCard";
 import Table from "../../components/shared/Table";
 import { dashboardData } from "../../constants/sampleData";
 import { transfromImage } from "../../lib/features";
@@ -70,10 +70,10 @@ const ChatManagement = () => {
         _id: i._id,
         avatar: i.avatar.map((i) => transfromImage(i, 50)),
         members: i.members.map((i) => transfromImage(i.avatar, 50)),
-        creater:{
+        creater: {
           name: i.creater.name,
           avatar: transfromImage(i.creater.avatar, 50),
-        }
+        },
       }))
     );
   }, []);

@@ -30,7 +30,6 @@ const MessageComponents = ({ message, user }) => {
       )}
 
       {content && <Typography>{content}</Typography>}
-
       {attachments.length > 0 &&
         attachments.map((attachment, index) => {
           const url = attachment.url;
@@ -51,7 +50,6 @@ const MessageComponents = ({ message, user }) => {
             </Box>
           );
         })}
-
       <Typography variant="caption" color={"text.secondary"}>
         {timeAgo}
       </Typography>

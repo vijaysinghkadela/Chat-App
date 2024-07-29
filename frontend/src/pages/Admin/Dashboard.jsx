@@ -82,15 +82,14 @@ const Dashboard = () => {
             xs: "column",
             lg: "row",
           }}
-          
           flexWrap={"wrap"}
           justifyContent={"center"}
           alignItems={{
-            xs: 'center',
-            lg: 'stretch',
+            xs: "center",
+            lg: "stretch",
           }}
           sx={{
-            gap: '2rem'
+            gap: "2rem",
           }}
         >
           <Paper
