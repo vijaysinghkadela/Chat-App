@@ -1,6 +1,6 @@
 import { Typography } from "@mui/material";
 import React, { memo } from "react";
-import { lightBlue } from "../../constants/color";
+import { lightBlue } from "../../constants/color.js";
 import moment from "moment";
 import { fileFormat } from "../../lib/features.js";
 import RenderAttachment from "./RenderAttachment.jsx";
@@ -25,7 +25,7 @@ const MessageComponents = ({ message, user }) => {
     >
       {!sameSender && (
         <Typography color={lightBlue} fontWeight={"600"} variant="caption">
-          {sender.name}
+          {sender?.name}
         </Typography>
       )}
 
