@@ -4,9 +4,12 @@ import { User } from "../models/user-models.js";
 
 const newUser = async (req, res) => {
 
+  const {} = req.body;
+  
+
   const Avatar = {
 
-    public_id: "abc123",
+    public_id: "wsdasd",
     url: "https://example.com/avatar.jpg", 
   };
 
