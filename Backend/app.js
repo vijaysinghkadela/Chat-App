@@ -4,15 +4,15 @@ import userRoute from "./routes/userRoute.js";
 import { connectDB } from "./utils/features.js";
 import dotenv from "dotenv";
 
+
 dotenv.config({
   path: "./.env",
 });
 
 const mongoURI = process.env.MONGO_URI;
-
-const port = process.env.PORT || 3000;
-
 connectDB(mongoURI);
+
+const port = process.env.PORT || 3000;  
 
 app.use("/user", userRoute);
 
