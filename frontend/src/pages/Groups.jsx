@@ -82,7 +82,7 @@ const Groups = () => {
   useEffect(() => {
     if (chatId) {
       setGroupName(`Group Name ${chatId}`);
-    setGroupNameUpdatedValue(`Group Name ${chatId}`);
+      setGroupNameUpdatedValue(`Group Name ${chatId}`);
     }
     return () => {
       setGroupName("");
@@ -203,7 +203,6 @@ const Groups = () => {
           },
         }}
         sm={4}
-       
       >
         <GroupsList myGroups={sampleChats} chatId={chatId} />
       </Grid>
@@ -248,19 +247,19 @@ const Groups = () => {
             >
               {/* Members */}
 
-              {
-                sampleUsers.map((i)=>(
-                  <UserItem user={i} isAdded styling={{
+              {sampleUsers.map((i) => (
+                <UserItem
+                  user={i}
+                  isAdded
+                  styling={{
                     BoxShadow: "0 0 10px rgba(0,0,0,0.2)",
                     padding: "1rem 2rem",
                     borderRadius: "1rem",
-                  }}  
+                  }}
                   key={i._id}
                   handler={removeMemberHandler}
-                  
-                  /> 
-                ))
-              }
+                />
+              ))}
             </Stack>
 
             {ButtonGroup}
@@ -301,12 +300,14 @@ const Groups = () => {
 };
 
 const GroupsList = ({ w = "100%", myGroups = [], chatId }) => {
-  <Stack width={w} 
-  sx={{
-    backgroundImage: bgGradient,
-    height: "100vh",
-  }}
-  direction={"column"}>
+  <Stack
+    width={w}
+    sx={{
+      backgroundImage: bgGradient,
+      height: "100vh",
+    }}
+    direction={"column"}
+  >
     {myGroups.length > 0 ? (
       myGroups.map((group, index) => (
         <GroupListItem group={group} chatId={chatId} key={group._id} />
