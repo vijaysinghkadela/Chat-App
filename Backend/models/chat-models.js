@@ -1,9 +1,9 @@
-import mongoose, { Schema,  model,  } from "mongoose";
+import mongoose, { Schema,  Types,  model,  } from "mongoose";
 
-const Schema = new Schema(
+const schema = new Schema(
   {
     name: {
-      type: string,
+      type: String,
       required: true,
     },
     groupChat: {
@@ -26,4 +26,4 @@ const Schema = new Schema(
   }
 );
 
-export const Chat = mongoose.models.Chat || model("Chat", Schema);
+export const chat = mongoose.models.Chat || model("chat", schema);

@@ -4,6 +4,7 @@ import {
   login,
   logout,
   newUser,
+  searchUser,
 } from "../controllers/user-controllers.js";
 import { singleAvatar } from "../middlewares/multer-middleware.js";
 import { isAuthenticated } from "../middlewares/auth-middleware.js";
@@ -20,5 +21,9 @@ app.use(isAuthenticated);
 app.get("/me", getMyProfile);
 
 app.get("/logout", logout);
+
+
+app.get("/search", searchUser);
+
 
 export default app;

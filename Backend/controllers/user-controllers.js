@@ -55,10 +55,28 @@ const getMyProfile = TryCatch(async (req, res) => {
 
 // Logout user and remove token from cookie
 const logout = TryCatch(async (req, res) => {
-  return res.status(200).cookie("ChatApp-token", "" , {...cookieOptions , maxAge: 0 }).json({
-    success: true,
-    message: " Logged out successfully!  ",
-  });
+  return res
+    .status(200)
+    .cookie("ChatApp-token", "", { ...cookieOptions, maxAge: 0 })
+    .json({
+      success: true,
+      message: " Logged out successfully!  ",
+    });
 });
 
-export { login, newUser, getMyProfile, logout };
+const searchUser = TryCatch(async (req, res) => {
+  
+  const { name } = req.query;
+  
+  
+  
+  
+  return res
+    .status(200)
+    .json({
+      success: true,
+      message: name,
+    });
+});
+
+export { login, newUser, getMyProfile, logout, searchUser };
