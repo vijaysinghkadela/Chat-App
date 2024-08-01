@@ -6,14 +6,17 @@ import { getOtherMember } from "../lib/helper.js";
 import { User } from "../models/user-models.js";
 import { emitEvent } from "../utils/features.js";
 
+// Create a new group chat and save it to the database
 const newGroupChat = TryCatch(async (req, res, next) => {
   const { name, members } = req.body;
 
+  // Check if the group chat has at least 3 members
   if (members.length < 2)
     return next(
       new ErrorHandler("Group chat must have at least 3 members", 400)
     );
 
+  // Get all users from the members array
   const allMembers = [...members, req.user._id];
   await chat.create({
     name,
@@ -22,17 +25,22 @@ const newGroupChat = TryCatch(async (req, res, next) => {
     members: allMembers,
   });
 
+  // Emit an event to refresh the chats list
   return res.status(201).json({ success: true, message: "Group chat created" });
 });
 
+// Get all chats belonging to the authenticated user
 const getMyChats = TryCatch(async (req, res, next) => {
+  // Find all chats where the authenticated user is a member and populate the members array with their names and avatars
   const chats = await chat
     .find({ members: req.user })
     .populate("members", "name  avatar");
 
+  // Transform the chats array to include the other member's name and avatar for group chats, or the other member's avatar for one-on-one chats
   const transformedChats = chats.map(({ _id, name, members, groupChat }) => {
     const otherMember = getOtherMember(members, req.user);
 
+    // Emit an event to notify the new member(s) that a new chat has been created
     return {
       _id,
       groupChat,
@@ -41,6 +49,8 @@ const getMyChats = TryCatch(async (req, res, next) => {
         : [otherMember.avatar.url],
       name: groupChat ? name : otherMember.name,
       members: members.reduce((prev, curr) => {
+
+        //  Only include the member(s) who are not the authenticated user in the members array
         if (curr._id.toString() !== req.user.toString()) {
           prev.push(curr._id);
         }
@@ -48,11 +58,14 @@ const getMyChats = TryCatch(async (req, res, next) => {
       }, []),
     };
   });
-
+//  Emit an event to notify the new member(s) that a new chat has been created
   return res.status(200).json({ success: true, chats: transformedChats });
 });
 
+//  Get all groups belonging to the authenticated user
 const getMyGroups = TryCatch(async (req, res, next) => {
+
+  // Find all chats where the authenticated user is the creator and the chat is a group chat and
   const chats = await chats
     .find({
       members: req.user,
@@ -61,22 +74,26 @@ const getMyGroups = TryCatch(async (req, res, next) => {
     })
     .populate("members", "name  avatar");
 
+  // Transform the chats array to include the other member's name and avatar for group chats, or the other member's avatar for one-on-one chats
   const groups = chats.map(({ _id, name, members, groupChat }) => ({
     _id,
     name,
     groupChat,
     avatar: members.slice(0, 3).map(({ avatar }) => avatar.url),
   }));
-
+  // Emit an event to notify the new member(s) that a new chat has been created
   return res.status(200).json({ success: true, groups });
 });
 
+// Add members to a group chat
 const addMembers = TryCatch(async (req, res, next) => {
   const { chatId, members } = req.body;
 
+  //  Check if members array is provided and contains at least one member
   if (!members || members.length < 1)
     return next(new ErrorHandler("Please provide members", 400));
 
+  //  Check if the authenticated user is the creator of the group chat
   const chat = await chat.findById(chatId);
 
   if (!chat) return next(new ErrorHandler("Chat not found", 404));
@@ -93,9 +110,9 @@ const addMembers = TryCatch(async (req, res, next) => {
 
   const allNewMembers = await Promise.all(allNewMembersPromise);
 
-  const uniqueMembers = allNewMembers.filter(
-    (i) => !chat.members.includes(i._id.toString())
-  ).map((i) => i._id);
+  const uniqueMembers = allNewMembers
+    .filter((i) => !chat.members.includes(i._id.toString()))
+    .map((i) => i._id);
 
   chat.members.push(...allNewMembers);
 
