@@ -14,7 +14,7 @@ const createUser = async (numUsers) => {
         username: faker.internet.userName(),
         bio: faker.lorem.sentence(10),
         password: "password",
-        avatarL: {
+        avatar: {
           url: faker.image.avatar(),
           public_id: faker.system.fileName(),
         },

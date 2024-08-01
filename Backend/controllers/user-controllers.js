@@ -14,6 +14,8 @@ const newUser = async (req, res, next) => {
     url: "https://example.com/avatar.jpg",
   };
 
+
+  
   const user = await User.create({
     name,
     bio,
@@ -65,18 +67,12 @@ const logout = TryCatch(async (req, res) => {
 });
 
 const searchUser = TryCatch(async (req, res) => {
-  
   const { name } = req.query;
-  
-  
-  
-  
-  return res
-    .status(200)
-    .json({
-      success: true,
-      message: name,
-    });
+
+  return res.status(200).json({
+    success: true,
+    message: name,
+  });
 });
 
 export { login, newUser, getMyProfile, logout, searchUser };

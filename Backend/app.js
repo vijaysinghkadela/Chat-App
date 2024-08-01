@@ -20,7 +20,6 @@ connectDB(mongoURI);
 
 const port = process.env.PORT || 3000;
 
-createUser(10);
 
 // using Middlewares Here
 
