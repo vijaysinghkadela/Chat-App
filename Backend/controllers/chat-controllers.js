@@ -5,6 +5,7 @@ import { ALERT, REFETCH_CHATS } from "../constants/Events.js";
 import { getOtherMember } from "../lib/helper.js";
 import { User } from "../models/user-models.js";
 import { emitEvent } from "../utils/features.js";
+import { promise } from "bcrypt/promises.js";
 
 // Create a new group chat and save it to the database
 const newGroupChat = TryCatch(async (req, res, next) => {
@@ -49,7 +50,6 @@ const getMyChats = TryCatch(async (req, res, next) => {
         : [otherMember.avatar.url],
       name: groupChat ? name : otherMember.name,
       members: members.reduce((prev, curr) => {
-
         //  Only include the member(s) who are not the authenticated user in the members array
         if (curr._id.toString() !== req.user.toString()) {
           prev.push(curr._id);
@@ -58,13 +58,12 @@ const getMyChats = TryCatch(async (req, res, next) => {
       }, []),
     };
   });
-//  Emit an event to notify the new member(s) that a new chat has been created
+  //  Emit an event to notify the new member(s) that a new chat has been created
   return res.status(200).json({ success: true, chats: transformedChats });
 });
 
 //  Get all groups belonging to the authenticated user
 const getMyGroups = TryCatch(async (req, res, next) => {
-
   // Find all chats where the authenticated user is the creator and the chat is a group chat and
   const chats = await chats
     .find({
@@ -137,4 +136,96 @@ const addMembers = TryCatch(async (req, res, next) => {
     .json({ success: true, message: `Members added Successfully` });
 });
 
-export { newGroupChat, getMyChats, getMyGroups, addMembers };
+// Remove a member from a group chat
+const removeMember = TryCatch(async (req, res, next) => {
+  const { userId, chatId } = req.body;
+
+  const [chat, userThatWillBeRemoved] = await Promise.all([
+    chat.findById(chatId),
+    User.findById(userId, "name"),
+  ]);
+
+  if (!chat) return next(new ErrorHandler("Chat not found", 404));
+
+  if (!chat.groupChat)
+    return next(new ErrorHandler("This is not a group chat", 404));
+
+  if (chat.creator.toString() !== req.user.toString())
+    return next(
+      new ErrorHandler("You are not the creator of this group chat", 403)
+    );
+
+  if (chat.members.length <= 3)
+    return next(new ErrorHandler("Group must have at least 3 members", 400));
+
+  chat.members = chat.members.filter(
+    (member) => member.toString() !== userId.toString()
+  );
+
+  await chat.save();
+
+  emitEvent(
+    req,
+    ALERT,
+    chat.members,
+    `${userThatWillBeRemoved.name} has been removed from ${chat.name} Group`
+  );
+
+  emitEvent(req, REFETCH_CHATS, chat.members);
+
+  return res
+    .status(200)
+    .json({ success: true, message: "Member removed successfully" });
+});
+
+// Member is left from Group Chat  and New Creator is Randomly Selected  from Remaining Members  and Updated in Chat
+
+const leaveGroup = TryCatch(async (req, res, next) => {
+  const chatId = req.params.id;
+
+  const chat = await chat.findById(chatId);
+
+  if (!chat) return next(new ErrorHandler("Chat not found", 404));
+
+  if (!chat.groupChat)
+    return next(new ErrorHandler("This is not a group chat", 404));
+
+  const remainingMembers = chat.members.filter(
+    (member) => member.toString() !== req.user.toString()
+  );
+
+  if (remainingMembers.length < 3)
+    return next(new ErrorHandler("Group must have at least 3 members", 400));
+
+  if (chat.creator.toString() === req.user.toString()) {
+    const randomElement = Math.floor(Math.random() * remainingMembers.length);
+
+    const newCreator = remainingMembers[randomElement];
+
+    chat.creator = newCreator;
+  }
+
+  chat.members = remainingMembers;
+
+  const [user] = await Promise.all([
+    User.findById(req.user, "name"),
+    chat.save(),
+  ]);
+
+  emitEvent(req, ALERT, chat.members, `User ${user.name} has left the Group`);
+
+  emitEvent(req, REFETCH_CHATS, chat.members);
+
+  return res
+    .status(200)
+    .json({ success: true, message: "Member removed successfully" });
+});
+
+export {
+  newGroupChat,
+  getMyChats,
+  getMyGroups,
+  addMembers,
+  removeMember,
+  leaveGroup,
+};
