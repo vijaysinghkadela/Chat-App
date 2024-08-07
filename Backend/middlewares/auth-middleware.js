@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { ErrorHandler } from "../utils/utility.js";
+import { adminSecretKey } from "../app.js";
 
 const isAuthenticated = (req, res, next) => {
   const token = req.cookies["token"];
@@ -14,4 +15,19 @@ const isAuthenticated = (req, res, next) => {
   next();
 };
 
-export { isAuthenticated };
+const adminOnly = (req, res, next) => {
+  const token = req.cookies["ChatApp-admin-token"];
+
+  if (!token)
+    return next(new ErrorHandler("Only Admin Can Access these  route", 401));
+
+  const secretKey = jwt.verify(token, process.env.JWT_SECRET);
+
+  isMatched = secretKey === adminSecretKey;
+
+  if (!isMatched) return next(new ErrorHandler("Only Admin Can Access these  route", 401));
+
+  next();
+};
+
+export { isAuthenticated, adminOnly };

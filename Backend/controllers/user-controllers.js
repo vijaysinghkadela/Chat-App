@@ -10,8 +10,12 @@ import { getOtherMember } from "../lib/helper.js";
 
 // Create a new user and save it to the database and save the JWT token in the response...
 
-const newUser = async (req, res, next) => {
+const newUser = TryCatch(async (req, res, next) => {
   const { name, username, password, bio } = req.body;
+
+  const file = req.file;
+
+  if (!file) return next(new ErrorHandler("Please upload an avatar", 400));
 
   const Avatar = {
     public_id: "wsdasd",
@@ -27,7 +31,7 @@ const newUser = async (req, res, next) => {
   });
 
   sendToken(res, user, 201, "User created successfully");
-};
+});
 
 // Login user and save token in cookie
 const login = TryCatch(async (req, res) => {
@@ -212,7 +216,7 @@ const getMyFriends = TryCatch(async (req, res) => {
   });
 
   if (chatId) {
-    const chat = await chat.findById(chatId);  
+    const chat = await chat.findById(chatId);
 
     const availableFriends = friends.filter(
       (friend) => !chat.members.includes(friend._id)
