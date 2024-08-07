@@ -16,12 +16,6 @@ import { deleteFilesFromCloudinary, emitEvent } from "../utils/features.js";
 const newGroupChat = TryCatch(async (req, res, next) => {
   const { name, members } = req.body;
 
-  // Check if the group chat has at least 3 members
-  if (members.length < 2)
-    return next(
-      new ErrorHandler("Group chat must have at least 3 members", 400)
-    );
-
   // Get all users from the members array
   const allMembers = [...members, req.user._id];
   await chat.create({
@@ -92,10 +86,6 @@ const getMyGroups = TryCatch(async (req, res, next) => {
 // Add members to a group chat
 const addMembers = TryCatch(async (req, res, next) => {
   const { chatId, members } = req.body;
-
-  //  Check if members array is provided and contains at least one member
-  if (!members || members.length < 1)
-    return next(new ErrorHandler("Please provide members", 400));
 
   //  Check if the authenticated user is the creator of the group chat
   const chat = await chat.findById(chatId);
