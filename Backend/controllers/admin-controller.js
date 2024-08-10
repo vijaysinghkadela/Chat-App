@@ -1,11 +1,12 @@
+import jwt from "jsonwebtoken";
+import { adminSecretKey } from "../app.js";
 import { TryCatch } from "../middlewares/error-middleware.js";
 import { chat } from "../models/chat-models.js";
 import { Message } from "../models/message-models.js";
 import { User } from "../models/user-models.js";
-import { ErrorHandler } from "../utils/utility.js";
-import { jwt } from "jsonwebtoken";
 import { cookieOptions } from "../utils/features.js";
-import { adminSecretKey } from "../app.js";
+import { ErrorHandler } from "../utils/utility.js";
+const { sign, verify } = jwt;
 
 const adminLogin = TryCatch(async (req, res, next) => {
   const { secretKey } = req.body;
@@ -28,8 +29,6 @@ const adminLogin = TryCatch(async (req, res, next) => {
     });
 });
 
-
-
 const adminLogout = TryCatch(async (req, res, next) => {
   return res
     .status(200)
@@ -43,16 +42,11 @@ const adminLogout = TryCatch(async (req, res, next) => {
     });
 });
 
-
 const getAdminData = TryCatch(async (req, res, next) => {
   return res.status(200).json({
-    admin: true,  
-  })
-})
-
-
-
-
+    admin: true,
+  });
+});
 
 const allUsers = TryCatch(async (req, res) => {
   const users = await User.find({});
@@ -180,13 +174,12 @@ const getDashboardStats = TryCatch(async (req, res) => {
   return res.status(200).json({ success: true, messages: transformedMessages });
 });
 
-
 export {
-  allUsers,
-  allChats,
-  allMessages,
-  getDashboardStats,
   adminLogin,
   adminLogout,
-  getAdminData
+  allChats,
+  allMessages,
+  allUsers,
+  getAdminData,
+  getDashboardStats,
 };

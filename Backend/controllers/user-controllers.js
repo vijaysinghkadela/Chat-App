@@ -1,12 +1,12 @@
 import bcrypt from "bcrypt";
-import { User } from "../models/user-models.js";
-import { cookieOptions, emitEvent, sendToken } from "../utils/features.js";
-import { TryCatch } from "../middlewares/error-middleware.js";
-import { ErrorHandler } from "../utils/utility.js";
-import { chat, chat } from "../models/chat-models.js";
-import { Request } from "../models/request-models.js";
 import { NEW_REQUEST, REFETCH_CHATS } from "../constants/Events.js";
 import { getOtherMember } from "../lib/helper.js";
+import { TryCatch } from "../middlewares/error-middleware.js";
+import { chat } from "../models/chat-models.js";
+import { Request } from "../models/request-models.js";
+import { User } from "../models/user-models.js";
+import { cookieOptions, emitEvent, sendToken } from "../utils/features.js";
+import { ErrorHandler } from "../utils/utility.js";
 
 // Create a new user and save it to the database and save the JWT token in the response...
 
@@ -235,13 +235,13 @@ const getMyFriends = TryCatch(async (req, res) => {
 });
 
 export {
-  login,
-  newUser,
+  acceptFriendRequest,
+  getMyFriends,
+  getMyNotifications,
   getMyProfile,
+  login,
   logout,
+  newUser,
   searchUser,
   sendFriendRequest,
-  acceptFriendRequest,
-  getMyNotifications,
-  getMyFriends,
 };

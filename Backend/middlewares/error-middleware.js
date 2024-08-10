@@ -1,4 +1,4 @@
-import { envMode } from "../app.sj";
+import { envMode } from "../app.js";
 
 const errorMiddleware = (error, req, res, next) => {
   error.message ||= `Internal Server Error`;
@@ -11,17 +11,15 @@ const errorMiddleware = (error, req, res, next) => {
     error.statusCode = 400;
   }
 
-
-if (error.name === "CastError") {
-  const errorPath = error.path
-  error.message = `Invalid Format of ${errorPath}`;
-  error.statusCode = 400;
-}
-
+  if (error.name === "CastError") {
+    const errorPath = error.path;
+    error.message = `Invalid Format of ${errorPath}`;
+    error.statusCode = 400;
+  }
 
   return res.status(error.statusCode).json({
     success: false,
-    message: envMode === "DEVELOPMENT"? error: error.message,
+    message: envMode === "DEVELOPMENT" ? error : error.message,
   });
 };
 
@@ -34,3 +32,4 @@ const TryCatch = (passedFunc) => async (req, res, next) => {
 };
 
 export { errorMiddleware, TryCatch };
+

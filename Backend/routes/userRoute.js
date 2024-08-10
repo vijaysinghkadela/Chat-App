@@ -10,14 +10,15 @@ import {
   searchUser,
   sendFriendRequest,
 } from "../controllers/user-controllers.js";
-import { singleAvatar } from "../middlewares/multer-middleware.js";
-import { isAuthenticated } from "../middlewares/auth-middleware.js";
 import {
   acceptRequestValidator,
+  loginValidator,
   registerValidator,
   sendRequestValidator,
   validateHandler,
 } from "../lib/validators.js";
+import { isAuthenticated } from "../middlewares/auth-middleware.js";
+import { singleAvatar } from "../middlewares/multer-middleware.js";
 
 const app = express.Router();
 
@@ -48,16 +49,8 @@ app.put(
   acceptFriendRequest
 );
 
-app.get(
-  "/notifications",
-  acceptRequestValidator(),
-  getMyNotifications
-);
+app.get("/notifications", acceptRequestValidator(), getMyNotifications);
 
-app.get(
-  "/friends",
-  acceptRequestValidator(),
-  getMyFriends
-);
+app.get("/friends", acceptRequestValidator(), getMyFriends);
 
 export default app;

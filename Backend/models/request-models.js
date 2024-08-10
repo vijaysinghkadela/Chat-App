@@ -1,7 +1,6 @@
-import { Schema, model, models } from "mongoose";
-import mongoose, { Schema,  model,  } from "mongoose";
+import mongoose, { Schema, Types, model } from "mongoose";
 
-const Schema = new Schema(
+const requestSchema = new Schema(
   {
     status: {
       type: String,
@@ -25,4 +24,5 @@ const Schema = new Schema(
   }
 );
 
-export const Request = mongoose.models.Request || model("Request", Schema);
+export const Request =
+  mongoose.models.Request || model("Request", requestSchema);

@@ -7,6 +7,7 @@ import { errorMiddleware } from "./middlewares/error-middleware.js";
 import { connectDB } from "./utils/features.js";
 import { createServer } from "http";
 import { v4 as uuid } from "uuid";
+import cors from "cors";
 
 import adminRoute from "./routes/adminRoute.js";
 import chatRoute from "./routes/chatRoute.js";
@@ -36,10 +37,13 @@ const userSocketIDs = new Map();
 // Middleware to parse incoming JSON data.
 app.use(express.json());
 app.use(cookieParser());
+app.use(cors({
+  origin: ""
+}));
 
-app.use("/user", userRoute);
-app.use("/chat", chatRoute);
-app.use("/admin", adminRoute);
+app.use("/api/v1/user", userRoute);
+app.use("/api/v1/chat", chatRoute);
+app.use("/api/v1/admin", adminRoute);
 
 app.get("/", (req, res) => {
   res.send("Hello World"); // This is a test endpoint to check server connection.  Replace this with your own logic.  :)

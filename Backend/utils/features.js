@@ -1,5 +1,5 @@
-import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 const cookieOptions = {
   maxAge: 15 * 24 * 60 * 60 * 1000,
@@ -27,17 +27,13 @@ const sendToken = (res, user, code, message) => {
 
 const emitEvent = (req, event, users, data) => {
   console.log("Emmiting event", event);
-  
 };
 
 const deleteFilesFromCloudinary = async (public_ids) => {
   // Delete files from cloudinory
+};
 
+export {
+  connectDB, cookieOptions, deleteFilesFromCloudinary, emitEvent, sendToken
+};
 
-}
-
-
-
-
-
-export { connectDB, sendToken, cookieOptions , emitEvent , deleteFilesFromCloudinary};

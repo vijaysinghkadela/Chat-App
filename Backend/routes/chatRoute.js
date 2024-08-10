@@ -17,6 +17,7 @@ import {
   chatIdValidator,
   newGroupValidator,
   removeMemberValidator,
+  renameValidator,
   sendAttachmentValidator,
   validateHandler,
 } from "../lib/validators.js";
