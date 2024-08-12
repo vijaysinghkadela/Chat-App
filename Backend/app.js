@@ -1,20 +1,21 @@
 import express from "express";
 
 import cookieParser from "cookie-parser";
+import cors from "cors";
 import dotenv from "dotenv";
+import { createServer } from "http";
 import { Server } from "socket.io";
+import { v4 as uuid } from "uuid";
 import { errorMiddleware } from "./middlewares/error-middleware.js";
 import { connectDB } from "./utils/features.js";
-import { createServer } from "http";
-import { v4 as uuid } from "uuid";
-import cors from "cors";
+import {v2 as cloudinary } from "cloudinary";
 
-import adminRoute from "./routes/adminRoute.js";
-import chatRoute from "./routes/chatRoute.js";
-import userRoute from "./routes/userRoute.js";
 import { NEW_MESSAGE, NEW_MESSAGE_ALERT } from "./constants/Events.js";
 import { getSokets } from "./lib/helper.js";
 import { Message } from "./models/message-models.js";
+import adminRoute from "./routes/adminRoute.js";
+import chatRoute from "./routes/chatRoute.js";
+import userRoute from "./routes/userRoute.js";
 
 dotenv.config({
   path: "./.env",
@@ -23,6 +24,12 @@ dotenv.config({
 const mongoURI = process.env.MONGO_URI;
 
 connectDB(mongoURI);
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+})
 
 const app = express();
 const server = createServer(app);
@@ -37,9 +44,16 @@ const userSocketIDs = new Map();
 // Middleware to parse incoming JSON data.
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({
-  origin: ""
-}));
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173/",
+      "http://localhost:4173",
+      process.env.CLIENT_URL,
+    ],
+    credentials: true,
+  })
+);
 
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/chat", chatRoute);
@@ -49,12 +63,7 @@ app.get("/", (req, res) => {
   res.send("Hello World"); // This is a test endpoint to check server connection.  Replace this with your own logic.  :)
 });
 
-io.use((socket, next) => {
-  
-})
-
-
-
+io.use((socket, next) => {});
 
 io.on("connection", (socket) => {
   const user = {
