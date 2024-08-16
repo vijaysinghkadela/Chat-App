@@ -8,7 +8,7 @@ import { Server } from "socket.io";
 import { v4 as uuid } from "uuid";
 import { errorMiddleware } from "./middlewares/error-middleware.js";
 import { connectDB } from "./utils/features.js";
-import {v2 as cloudinary } from "cloudinary";
+import { v2 as cloudinary } from "cloudinary";
 
 import { NEW_MESSAGE, NEW_MESSAGE_ALERT } from "./constants/Events.js";
 import { getSokets } from "./lib/helper.js";
@@ -29,7 +29,7 @@ cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
-})
+});
 
 const app = express();
 const server = createServer(app);

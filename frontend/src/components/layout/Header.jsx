@@ -5,7 +5,7 @@ import {
   IconButton,
   Toolbar,
   Tooltip,
-  Typography
+  Typography,
 } from "@mui/material";
 
 import {
@@ -20,6 +20,12 @@ import React, { Suspense, lazy } from "react";
 import { orange } from "../../constants/color";
 
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { server } from "../../constants/config";
+import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { userNotExists } from "../../redux/reducers/auth";
+import { setIsMobile } from "../../redux/reducers/misc";
 
 const SearchDialog = lazy(() => import("../Specific/Search"));
 const NotificationDialog = lazy(() => import("../Specific/Notifications"));
@@ -27,8 +33,8 @@ const NewGroupDialog = lazy(() => import("../Specific/NewGroup"));
 
 const Hander = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const [isMobile, setIsMobile] = React.useState(false);
   const [isSearch, setIsSearch] = React.useState(false);
   const [isNewGroup, setIsNewGroup] = React.useState(false);
   const [isNotification, setisNotification] = React.useState(false);
@@ -44,7 +50,7 @@ const Hander = () => {
   };
 
   const handleMobile = () => {
-    setIsMobile((prev) => !prev);
+    dispatch(setIsMobile(true));
   };
 
   const openSearch = () => {
@@ -61,8 +67,16 @@ const Hander = () => {
 
   const navigateToGroup = () => navigate("/groups");
 
-  const logoutHandler = () => {
-    console.log(logoutHandler);
+  const logoutHandler = async () => {
+    try {
+      const { data } = await axios.get(`${server}/api/v1/user/logout`, {
+        withCredentials: true,
+      });
+      dispatch(userNotExists());
+      toast.success(data.message);
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Something went wrong.");
+    }
   };
 
   return (
@@ -135,13 +149,13 @@ const Hander = () => {
       )}
 
       {isNotification && (
-         <Suspense fallback={<Backdrop open />}>
+        <Suspense fallback={<Backdrop open />}>
           <NotificationDialog />
         </Suspense>
       )}
 
       {isNewGroup && (
-          <Suspense fallback={<Backdrop open />}>
+        <Suspense fallback={<Backdrop open />}>
           <NewGroupDialog />
         </Suspense>
       )}

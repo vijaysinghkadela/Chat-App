@@ -5,7 +5,12 @@ import { TryCatch } from "../middlewares/error-middleware.js";
 import { chat } from "../models/chat-models.js";
 import { Request } from "../models/request-models.js";
 import { User } from "../models/user-models.js";
-import { cookieOptions, emitEvent, sendToken } from "../utils/features.js";
+import {
+  cookieOptions,
+  emitEvent,
+  sendToken,
+  uploadFilesToCloudinary,
+} from "../utils/features.js";
 import { ErrorHandler } from "../utils/utility.js";
 
 // Create a new user and save it to the database and save the JWT token in the response...
@@ -17,9 +22,11 @@ const newUser = TryCatch(async (req, res, next) => {
 
   if (!file) return next(new ErrorHandler("Please upload an avatar", 400));
 
+  const result = await uploadFilesToCloudinary([file]);
+
   const Avatar = {
-    public_id: "wsdasd",
-    url: "https://example.com/avatar.jpg",
+    public_id: result[0].public_id,
+    url: result[0].url,
   };
 
   const user = await User.create({
