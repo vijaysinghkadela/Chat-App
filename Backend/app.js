@@ -13,11 +13,13 @@ import { connectDB } from "./utils/features.js";
 import { NEW_MESSAGE, NEW_MESSAGE_ALERT } from "./constants/Events.js";
 import { getSokets } from "./lib/helper.js";
 import { Message } from "./models/message-models.js";
+import { corsOptions } from "./constants/config.js";
+import { socketAuthenticator } from "./middlewares/auth-middleware.js";
+
+// Here is imported all routes.
 import adminRoute from "./routes/adminRoute.js";
 import chatRoute from "./routes/chatRoute.js";
 import userRoute from "./routes/userRoute.js";
-import { corsOptions } from "./constants/config.js";
-import { socketAuthenticator } from "./middlewares/auth-middleware.js";
 
 dotenv.config({
   path: "./.env",
@@ -64,15 +66,13 @@ io.use((socket, next) => {
   cookieParser()(
     socket.request,
     socket.request.res,
-    async (error) => await socketAuthenticator(error, socket,next)
+    async (error) => await socketAuthenticator(error, socket, next)
   );
 });
 
 io.on("connection", (socket) => {
-  const user = {
-    _id: "asjdola",
-    name: "asdhjoajsd",
-  };
+  const user = socket.user;
+  
   userSocketIDs.set(user._id.toString(), socket.id);
   console.log("a user connected", socket.id);
 

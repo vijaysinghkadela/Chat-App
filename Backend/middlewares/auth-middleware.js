@@ -2,9 +2,11 @@ import jwt from "jsonwebtoken";
 import { ErrorHandler } from "../utils/utility.js";
 import { adminSecretKey } from "../app.js";
 import { TryCatch } from "./error-middleware.js";
+import { CHATAPP_tOKEN } from "../constants/config.js";
+import { User } from "../models/user-models.js";
 
 const isAuthenticated = TryCatch((req, res, next) => {
-  const token = req.cookies["token"];
+  const token = req.cookies[CHATAPP_tOKEN];
 
   if (!token)
     return next(new ErrorHandler("Please login to access this  route", 401));
@@ -32,12 +34,27 @@ const adminOnly = (req, res, next) => {
   next();
 };
 
-const socketAuthenticator = async (error, socket, next) =>{
+const socketAuthenticator = async (error, socket, next) => {
   try {
-    
+    if (error) return next(error);
+
+    const authtoken = socket.request.cookies[CHATAPP_tOKEN];
+
+    if (!authtoken)
+      return next(new ErrorHandler("Please login to access this route", 401));
+
+    const decodedData = jwt.verify(authtoken, process.env.JWT_SECRET);
+
+    const user = await User.findById(decodedData._id);
+
+    if (!user) return next(new ErrorHandler("User Not Found", 404));
+
+    socket.user = user;
+
+    return next();
   } catch (error) {
     return next(new ErrorHandler(`Authentication Failed : ${error}`, 401));
   }
-}
+};
 
-export { isAuthenticated, adminOnly , socketAuthenticator  };
+export { isAuthenticated, adminOnly, socketAuthenticator };
