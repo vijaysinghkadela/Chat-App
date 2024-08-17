@@ -32,4 +32,12 @@ const adminOnly = (req, res, next) => {
   next();
 };
 
-export { isAuthenticated, adminOnly };
+const socketAuthenticator = async (error, socket, next) =>{
+  try {
+    
+  } catch (error) {
+    return next(new ErrorHandler(`Authentication Failed : ${error}`, 401));
+  }
+}
+
+export { isAuthenticated, adminOnly , socketAuthenticator  };

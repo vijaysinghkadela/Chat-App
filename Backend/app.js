@@ -1,5 +1,6 @@
 import express from "express";
 
+import { v2 as cloudinary } from "cloudinary";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -8,7 +9,6 @@ import { Server } from "socket.io";
 import { v4 as uuid } from "uuid";
 import { errorMiddleware } from "./middlewares/error-middleware.js";
 import { connectDB } from "./utils/features.js";
-import { v2 as cloudinary } from "cloudinary";
 
 import { NEW_MESSAGE, NEW_MESSAGE_ALERT } from "./constants/Events.js";
 import { getSokets } from "./lib/helper.js";
@@ -16,6 +16,8 @@ import { Message } from "./models/message-models.js";
 import adminRoute from "./routes/adminRoute.js";
 import chatRoute from "./routes/chatRoute.js";
 import userRoute from "./routes/userRoute.js";
+import { corsOptions } from "./constants/config.js";
+import { socketAuthenticator } from "./middlewares/auth-middleware.js";
 
 dotenv.config({
   path: "./.env",
@@ -33,7 +35,10 @@ cloudinary.config({
 
 const app = express();
 const server = createServer(app);
-const io = new Server(server, {});
+const io = new Server(server, {
+  cors: corsOptions,
+});
+
 const port = process.env.PORT || 3000;
 const envMode = process.env.NODE_ENV.trim() || "PRODUCTION";
 const adminSecretKey = process.env.ADMIN_SECRET_KEY;
@@ -44,26 +49,24 @@ const userSocketIDs = new Map();
 // Middleware to parse incoming JSON data.
 app.use(express.json());
 app.use(cookieParser());
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173/",
-      "http://localhost:4173",
-      process.env.CLIENT_URL,
-    ],
-    credentials: true,
-  })
-);
+app.use(cors(corsOptions));
 
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/chat", chatRoute);
 app.use("/api/v1/admin", adminRoute);
 
 app.get("/", (req, res) => {
-  res.send("Hello World"); // This is a test endpoint to check server connection.  Replace this with your own logic.  :)
+  // This is a test endpoint to check server connection.
+  res.send("Hello World");
 });
 
-io.use((socket, next) => {});
+io.use((socket, next) => {
+  cookieParser()(
+    socket.request,
+    socket.request.res,
+    async (error) => await socketAuthenticator(error, socket,next)
+  );
+});
 
 io.on("connection", (socket) => {
   const user = {

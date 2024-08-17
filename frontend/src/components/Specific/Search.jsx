@@ -1,33 +1,59 @@
+import { useInputValidation } from "6pp";
+import { Search as SearchIcon } from "@mui/icons-material";
 import {
   Dialog,
   DialogTitle,
   InputAdornment,
   List,
-  ListItem,
-  ListItemText,
   Stack,
   TextField,
 } from "@mui/material";
-import React from "react";
-import { useInputValidation } from "6pp";
-import { Search as SearchIcon } from "@mui/icons-material";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useAsyncMutation } from "../../hooks/hook";
+import {
+  useLazySearchUserQuery,
+  useSendFriendRequestMutation,
+} from "../../redux/api/api";
+import { setIsSearch } from "../../redux/reducers/misc";
 import UserItem from "../shared/UserItem";
-import { sampleUsers } from "../../constants/sampleData";
-
-
 
 const Search = () => {
+  const { isSearch } = useSelector((state) => state.misc);
+
+  const [searchUser] = useLazySearchUserQuery();
+  const [sendFriendRequest, isLoadingSendfriendRequest] = useAsyncMutation(
+    useSendFriendRequestMutation
+  );
+
+  const dispatch = useDispatch();
+
   const search = useInputValidation("");
 
-  let isLoadingSendfriendRequest = false;
-  const [users , setUsers] = React.useState(sampleUsers);
+  const [users, setUsers] = React.useState([]);
 
-  const addFriendHandler = (id) => {
-    console.log(id);
-  }
+  const addFriendHandler = async (id) => {
+    await sendFriendRequest("Sending friend request...", { userId: id });
+  };
+
+  const searchCloseHandler = () => dispatch(setIsSearch(false));
+
+  useEffect(() => {
+    const timeOutId = setTimeout(() => {
+      searchUser(search.value)
+        .then(({ data }) => {
+          setUsers(data.users);
+        })
+        .catch((error) => {});
+    }, 100);
+
+    return () => {
+      clearTimeout(timeOutId);
+    };
+  }, [search.value]);
 
   return (
-    <Dialog open>
+    <Dialog open={isSearch} onClose={searchCloseHandler}>
       <Stack p={"2rem"} direction={"column"} width={"25rem"}>
         <DialogTitle textAlign={"center"}> Find People</DialogTitle>
 

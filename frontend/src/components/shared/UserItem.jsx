@@ -20,7 +20,7 @@ const UserItem = ({ user, handler, handlerIsLoading , styling={}}) => {
         width={"100%"}
         {...styling}
       >
-        <Avatar />
+        <Avatar src={transformImage(avatar)} />
 
         <Typography
           variant="body1"

@@ -1,14 +1,15 @@
-import React from "react";
-import Header from "./Header.jsx";
-import Title from "../shared/Title.jsx";
 import { Drawer, Grid, Skeleton } from "@mui/material";
-import ChatList from "../Specific/ChatList.jsx";
-import { sampleChats } from "../../constants/sampleData.js";
-import { useParams } from "react-router-dom";
-import Profile from "../Specific/Profile.jsx";
-import { useMyChatsQuery } from "../../redux/api/api.js";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import { useErrors } from "../../hooks/hook.jsx";
+import { useMyChatsQuery } from "../../redux/api/api.js";
 import { setIsMobile } from "../../redux/reducers/misc.js";
+import Title from "../shared/Title.jsx";
+import ChatList from "../Specific/ChatList.jsx";
+import Profile from "../Specific/Profile.jsx";
+import Header from "./Header.jsx";
+import { getSocket } from "../../socket.jsx";
 
 const AppLayout = () => (WrappedComponent) => {
   return (props) => {
@@ -16,9 +17,14 @@ const AppLayout = () => (WrappedComponent) => {
     const despatch = useDispatch();
     const chatId = params.chatId;
 
+    const socket = getSocket();
+
     const { isMobile } = useSelector((state) => state.misc);
+    const { user } = useSelector((state) => state.auth);
 
     const { isLoading, data, isError, error, refetch } = useMyChatsQuery("");
+
+    useErrors([{ isError, error }]);
 
     const handleDeleteChat = (event, _id, groupChat) => {
       event.preventDefault();
@@ -36,7 +42,7 @@ const AppLayout = () => (WrappedComponent) => {
         ) : (
           <Drawer open={isMobile} onClose={handleMobileClose}>
             <ChatList
-            width="70vw"
+              width="70vw"
               chats={data?.chats}
               chatId={chatId}
               handleDeleteChat={handleDeleteChat}
@@ -79,7 +85,7 @@ const AppLayout = () => (WrappedComponent) => {
               bgcolor: "rgba(0, 0, 0, 0.85)",
             }}
           >
-            <Profile />
+            <Profile user={user} />
           </Grid>
         </Grid>
       </>
