@@ -1,31 +1,35 @@
-import React, { useRef } from "react";
-import AppLayout from "../components/layout/AppLayout";
-import { IconButton, Skeleton, Stack } from "@mui/material";
-import { grayColor, orange } from "../constants/color.js";
 import {
   AttachFile as AttachFileIcon,
   Send as SendIcon,
 } from "@mui/icons-material";
+import { IconButton, Skeleton, Stack } from "@mui/material";
+import React, { useCallback, useRef } from "react";
 import { InputBox } from "../components/Styles/StyledComponents.jsx";
 import FileMenu from "../components/dialogs/FileMenu.jsx";
-import { sampleMessages } from "../constants/sampleData.js";
+import AppLayout from "../components/layout/AppLayout";
 import MessageComponents from "../components/shared/MessageComponents.jsx";
-import { getSocket } from "../socket.jsx";
+import { grayColor, orange } from "../constants/color.js";
 import { NEW_MESSAGE } from "../constants/events.js";
-import { useChatDetailsQuery } from "../redux/api/api.js";
-const user = {
-  _id: "asdasd",
-  name: "User",
-};
+import { useErrors, useSocketEvent } from "../hooks/hook.jsx";
+import { useChatDetailsQuery, useGetMessagesQuery } from "../redux/api/api.js";
+import { getSocket } from "../socket.jsx";
+import { useInfiniteScrollTop } from "6pp";
 
-const Chat = ({ chatId }) => {
+const Chat = ({ chatId, user }) => {
   const containerRef = useRef(null);
-
   const socket = getSocket();
 
-  const chatDetails = useChatDetailsQuery({ chatId, skip: !chatId });
-
   const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [page, setPage] = useState(1);
+
+  const chatDetails = useChatDetailsQuery({ chatId, skip: !chatId });
+  const oldMessagesChunk = useGetMessagesQuery({ chatId, page });
+
+  const errors = [
+    { isError: chatDetails.isError, errors: chatDetails.error },
+    { isError: oldMessagesChunk.isError, errors: oldMessagesChunk.error },
+  ];
   const members = chatDetails?.data?.chat?.members;
 
   const submitHandler = (e) => {
@@ -37,17 +41,19 @@ const Chat = ({ chatId }) => {
     setMessage("");
   };
 
+  const newMessagesHandler = useCallback((data) => {
+    setMessages((prev) => [...prev, data]);
+  }, []);
 
+  const newMessageHandler = useCallback((data) => {
+    console.log(data);
+  }, []);
 
-  useEffect(() => {
-    socket.on(NEW_MESSAGE, (data) => {
-      
-    });
-  });
+  const eventHandler = { [NEW_MESSAGE]: newMessagesHandler };
 
+  useSocketEvent(socket, eventHandler);
 
-
-
+  useErrors(errors);
 
   return chatDetails.isLoading ? (
     <Skeleton />
@@ -65,8 +71,13 @@ const Chat = ({ chatId }) => {
           overflowY: "auto",
         }}
       >
-        {sampleMessages.map((message, index) => (
-          <MessageComponents key={index} message={index} user={user} />
+        {!oldMessagesChunk.isLoading &&
+          oldMessagesChunk.data?.messages?.map((i) => (
+            <MessageComponents key={i._id} message={i} user={user} />
+          ))}
+
+        {messages.map((i) => (
+          <MessageComponents key={i._id} message={i} user={user} />
         ))}
       </Stack>
 

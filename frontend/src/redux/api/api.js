@@ -7,6 +7,8 @@ const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${server}/api/v1/`,
   }),
+  tagTypes: ["Chat", "User", "Message"],
+
   // Define the endpoints for your API
   tagTypes: ["Chat", "User"],
   endpoints: (builder) => ({
@@ -56,15 +58,24 @@ const api = createApi({
   }),
 
   chatDetails: builder.query({
-    query: ({chatId , populate= false}) => {
-       let url = `chat/${chatId}`;
-       if(populate) url+="?populate=true";
+    query: ({ chatId, populate = false }) => {
+      let url = `chat/${chatId}`;
+      if (populate) url += "?populate=true";
       return {
         url,
         credentials: "include",
       };
     },
-    providesTags: ['Chat'],
+    providesTags: ["Chat"],
+  }),
+
+  getMessage: builder.query({
+    query: ({ chatId, page }) => ({
+      url: `chat/message/${chatId}?page=${page}`,
+      credentials: "include",
+    }),
+
+    providesTags: ["Message"],
   }),
 });
 
@@ -74,6 +85,7 @@ export const {
   useLazySearchUserQuery,
   useSendFriendRequestMutation,
   useGetNotificationsQuery,
-  useAcceptFriendRequestMutation, 
+  useAcceptFriendRequestMutation,
   useChatDetailsQuery,
+  useGetMessagesQuery,
 } = api;
