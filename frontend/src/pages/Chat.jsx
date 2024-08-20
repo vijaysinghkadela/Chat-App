@@ -14,14 +14,17 @@ import { NEW_MESSAGE } from "../constants/events.js";
 import { useErrors, useSocketEvent } from "../hooks/hook.jsx";
 import { useChatDetailsQuery, useGetMessagesQuery } from "../redux/api/api.js";
 import { getSocket } from "../socket.jsx";
+import { useDispatch } from "react-redux";
 
 const Chat = ({ chatId, user }) => {
   const containerRef = useRef(null);
   const socket = getSocket();
+  const dispatch = useDispatch();
 
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [page, setPage] = useState(1);
+  const [fileMenuAnchor, setFileMenuAnchor] = useState(null);
 
   const chatDetails = useChatDetailsQuery({ chatId, skip: !chatId });
   const oldMessagesChunk = useGetMessagesQuery({ chatId, page });
@@ -39,6 +42,11 @@ const Chat = ({ chatId, user }) => {
     { isError: oldMessagesChunk.isError, errors: oldMessagesChunk.error },
   ];
   const members = chatDetails?.data?.chat?.members;
+
+  const handleFileOpen = (e) => {
+    dispatch(setIsFileMenu(true));
+    setFileMenuAnchor(e.currentTarget);
+  };
 
   const submitHandler = (e) => {
     e.preventDefalut();
@@ -106,6 +114,7 @@ const Chat = ({ chatId, user }) => {
               rotate: "-30deg",
             }}
             ref={FileMenu}
+            onClick={handleFileOpen}
           >
             <AttachFileIcon />
           </IconButton>
@@ -134,7 +143,7 @@ const Chat = ({ chatId, user }) => {
         </Stack>
       </form>
 
-      <FileMenu />
+      <FileMenu anchopE1={fileMenuAnchor} />
     </>
   );
 };
