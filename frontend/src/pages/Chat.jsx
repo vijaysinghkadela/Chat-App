@@ -1,3 +1,4 @@
+import { useInfiniteScrollTop } from "6pp";
 import {
   AttachFile as AttachFileIcon,
   Send as SendIcon,
@@ -13,7 +14,6 @@ import { NEW_MESSAGE } from "../constants/events.js";
 import { useErrors, useSocketEvent } from "../hooks/hook.jsx";
 import { useChatDetailsQuery, useGetMessagesQuery } from "../redux/api/api.js";
 import { getSocket } from "../socket.jsx";
-import { useInfiniteScrollTop } from "6pp";
 
 const Chat = ({ chatId, user }) => {
   const containerRef = useRef(null);
@@ -25,6 +25,14 @@ const Chat = ({ chatId, user }) => {
 
   const chatDetails = useChatDetailsQuery({ chatId, skip: !chatId });
   const oldMessagesChunk = useGetMessagesQuery({ chatId, page });
+
+  const { data: oldMessages, setData: setOldMessages } = useInfiniteScrollTop(
+    containerRef,
+    oldMessagesChunk.data?.totalPages,
+    page,
+    setPage,
+    oldMessagesChunk.data?.messages
+  );
 
   const errors = [
     { isError: chatDetails.isError, errors: chatDetails.error },
@@ -55,6 +63,8 @@ const Chat = ({ chatId, user }) => {
 
   useErrors(errors);
 
+  const allMessages = [...oldMessages, ...messages];
+
   return chatDetails.isLoading ? (
     <Skeleton />
   ) : (
@@ -71,12 +81,7 @@ const Chat = ({ chatId, user }) => {
           overflowY: "auto",
         }}
       >
-        {!oldMessagesChunk.isLoading &&
-          oldMessagesChunk.data?.messages?.map((i) => (
-            <MessageComponents key={i._id} message={i} user={user} />
-          ))}
-
-        {messages.map((i) => (
+        {allMessages.map((i) => (
           <MessageComponents key={i._id} message={i} user={user} />
         ))}
       </Stack>
