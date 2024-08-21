@@ -143,7 +143,7 @@ const Chat = ({ chatId, user }) => {
         </Stack>
       </form>
 
-      <FileMenu anchopE1={fileMenuAnchor} />
+      <FileMenu anchopE1={fileMenuAnchor}  chatId={chatId}/>
     </>
   );
 };

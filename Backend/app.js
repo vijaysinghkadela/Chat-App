@@ -41,6 +41,8 @@ const io = new Server(server, {
   cors: corsOptions,
 });
 
+app.set("io",io);
+
 const port = process.env.PORT || 3000;
 const envMode = process.env.NODE_ENV.trim() || "PRODUCTION";
 const adminSecretKey = process.env.ADMIN_SECRET_KEY;

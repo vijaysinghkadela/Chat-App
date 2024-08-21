@@ -9,7 +9,7 @@ import { TryCatch } from "../middlewares/error-middleware.js";
 import { chat } from "../models/chat-models.js";
 import { Message } from "../models/message-models.js";
 import { User } from "../models/user-models.js";
-import { deleteFilesFromCloudinary, emitEvent } from "../utils/features.js";
+import { deleteFilesFromCloudinary, emitEvent, uploadFilesToCloudinary } from "../utils/features.js";
 import { ErrorHandler } from "../utils/utility.js";
 
 // Create a new group chat and save it to the database
@@ -238,7 +238,7 @@ const sendAttachment = TryCatch(async (req, res, next) => {
     return next(new ErrorHandler("Please provide attachments", 400));
 
   // Upload Files here
-  const attachmens = [];
+  const attachmens = await uploadFilesToCloudinary(files);
 
   const messageForDB = {
     content: "",

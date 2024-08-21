@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import { v4 as uuid } from "uuid";
 import { getBase64 } from "../lib/helper.js";
-
+import { getSockets } from "../lib/helper.js";
 const cookieOptions = {
   maxAge: 15 * 24 * 60 * 60 * 1000,
   sameSite: "none",
@@ -29,7 +29,9 @@ const sendToken = (res, user, code, message) => {
 };
 
 const emitEvent = (req, event, users, data) => {
-  console.log("Emmiting event", event);
+  const io = req.app.get("io");
+  const usersSocket = getSockets(users);
+  io.to(usersSocket).emit(event, data);
 };
 
 // Upload files to cloudinory
