@@ -2,31 +2,27 @@ import { Drawer, Grid, Skeleton } from "@mui/material";
 import React, { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  NEW_MESSAGE,
-  NEW_MESSAGE_ALERT,
-} from "../../../../Backend/constants/Events.js";
+import { NEW_MESSAGE_ALERT } from "../../../../Backend/constants/Events.js";
+import { NEW_REQUEST, REFETCH_CHATS } from "../../constants/events.js";
 import { useErrors } from "../../hooks/hook.jsx";
 import { useSocketEvents } from "../../hooks/useSocketEvents.js";
+import { getOrSaveFromStorage } from "../../lib/features.js";
 import { useMyChatsQuery } from "../../redux/api/api.js";
+import {
+  incrementNotification,
+  setNewMessagesAlert,
+} from "../../redux/reducers/chat.js";
 import {
   setIsDeleteMenu,
   setIsMobile,
   setSelectedDeleteChat,
 } from "../../redux/reducers/misc.js";
-import { newMessagesHandler } from "../../socket.js";
 import { getSocket } from "../../socket.jsx";
+import DeleteChatMenu from "../dialogs/DeleteChatMenu.jsx";
 import Title from "../shared/Title.jsx";
 import ChatList from "../Specific/ChatList.jsx";
 import Profile from "../Specific/Profile.jsx";
 import Header from "./Header.jsx";
-import { NEW_REQUEST, REFETCH_CHATS } from "../../constants/events.js";
-import {
-  incrementNotification,
-  setNewMessagesAlert,
-} from "../../redux/reducers/chat.js";
-import { getOrSaveFromStorage } from "../../lib/features.js";
-import DeleteChatMenu from "../dialogs/DeleteChatMenu.jsx";
 
 const AppLayout = () => (WrappedComponent) => {
   return (props) => {
@@ -83,8 +79,6 @@ const AppLayout = () => (WrappedComponent) => {
       [REFETCH_CHATS]: refetchListener,
     };
     useSocketEvents(socket, eventHandlers);
-
-  
 
     return (
       <>

@@ -19,6 +19,7 @@ import {
 import React, { useState } from "react";
 import { Link as LinkComponent, Navigate, useLocation } from "react-router-dom";
 import { grayColor, matBlack } from "../../constants/color";
+import { useSelector } from "react-redux";
 
 const Link = styled(LinkComponent)`
   text-decoration: none;
@@ -99,9 +100,10 @@ const Sidebar = ({ w = "100%" }) => {
   );
 };
 
-const isAdmin = true;
+
 
 const AdminLayout = ({ children }) => {
+  const { isAdmin } = useSelector((state) => state.auth);
   const [isMobile, setisMobile] = useState(false);
 
   const handleMobile = () => setisMobile(!isMobile);

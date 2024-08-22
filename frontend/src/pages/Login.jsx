@@ -30,6 +30,7 @@ const theme = createTheme({
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const toggleLogin = () => setIsLogin((prev) => !prev);
 
@@ -44,7 +45,8 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
+    const toastId = toast.loading("Logging In...");
+    setIsLoading(true);
     const config = {};
 
     try {
@@ -62,16 +64,20 @@ const Login = () => {
           config,
         }
       );
-      dispatch(userExists(true));
-      toast.success(data.message);
+      dispatch(userExists(data.user));
+      toast.success(data.message, {
+        id: toastId,
+      });
     } catch (error) {
       toast.error(error.response?.data?.message || "Something went wrong!");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleSignUp = async (e) => {
     e.preventDefault();
-
+    const toastId = toast.loading("Signing Up...");
     const formData = new FormData();
     formData.append("avatar", avater.value);
     formData.append("name", name.value);
@@ -93,10 +99,12 @@ const Login = () => {
         config
       );
 
-      dispatch(userExists(true));
-      toast.success(data.message);
+      dispatch(userExists(data.user));
+      toast.success(data.message, { id: toastId });
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Something went wrong!");
+      toast.error(error?.response?.data?.message || "Something went wrong!", {
+        id: toastId,
+      });
     }
   };
 
@@ -168,6 +176,7 @@ const Login = () => {
                   color={theme.palette.primary.main}
                   type="submit"
                   fullWidth
+                  disabled={isLoading}
                 >
                   Login
                 </Button>
@@ -177,6 +186,7 @@ const Login = () => {
                 </Typography>
 
                 <Button
+                  disabled={isLoading}
                   variant="text"
                   type="submit"
                   onClick={toggleLogin}
@@ -314,6 +324,7 @@ const Login = () => {
                   color={theme.palette.primary.main}
                   type="submit"
                   fullWidth
+                  disabled={isLoading}
                 >
                   Sign Up
                 </Button>
@@ -323,11 +334,11 @@ const Login = () => {
                 </Typography>
 
                 <Button
+                  disabled={isLoading}
                   variant="text"
                   type="submit"
                   onClick={toggleLogin}
                   fullWidth
-                  t
                 >
                   Login Instead
                 </Button>

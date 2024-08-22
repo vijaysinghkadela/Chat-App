@@ -1,25 +1,27 @@
 import { useInputValidation } from "6pp";
-import {
-    Button,
-    Container,
-    Paper,
-    TextField
-} from "@mui/material";
-import React from "react";
+import { Button, Container, Paper, TextField } from "@mui/material";
+import React, { useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { bgGradient } from "../../constants/color";
-
+import { useDispatch, useSelector } from "react-redux";
+import { adminLogin, getAdmin } from "../../redux/thunks/Admin-thunks";
 // Replace with your own logic to check if user is admin
-const isAdmin = true;
 
 const AdminLogin = () => {
+  const { isAdmin } = useSelector((state) => state.auth);
+  const dispatch = useDispatch()
   const secretKey = useInputValidation("");
 
   const submitHandler = (e) => {
     e.preventDefault();
     // Perform your login logic here
-    console.log("Admin Login Successful");
+    dispatch(adminLogin(secretKey.value))
   };
+
+
+  useEffect(()=>{
+    dispatch(getAdmin())
+  },[dispatch])
 
   if (isAdmin) return <Navigate to="/admin/dashboard" />;
 
