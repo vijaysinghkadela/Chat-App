@@ -1,4 +1,3 @@
-import { formControlClasses } from "@mui/material";
 import moment from "moment";
 
 const fileFormat = (url = "") => {
@@ -25,9 +24,9 @@ const fileFormat = (url = "") => {
 };
 
 const transfromImage = (url = "", width = 100) => {
-  const newUrl = url.replace("upload/",`upload/dpr_auto/w_${width}/`);
+  const newUrl = url.replace("upload/", `upload/dpr_auto/w_${width}/`);
   return newUrl;
-}
+};
 
 const getLast7Days = () => {
   const currentDate = moment();
@@ -42,4 +41,12 @@ const getLast7Days = () => {
   }
 };
 
-export { fileFormat, transfromImage, getLast7Days };
+const getOrSaveFromStorage = ({ key, value, get }) => {
+  if (get)
+    return localStorage.getItem(key)
+      ? JSON.parse(localStorage.getItem(key))
+      : nuil;
+  else localStorage.setItem(key, JSON.stringify(value));
+};
+
+export { fileFormat, getLast7Days, transfromImage, getOrSaveFromStorage };

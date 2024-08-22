@@ -19,12 +19,21 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import React, { lazy, memo, Suspense, useEffect, useState } from "react";
+import React, { Suspense,lazy, memo, Suspense, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import AvatarCard from "../components/shared/AvatarCard";
+import { Link } from "../components/Styles/StyledComponents";
+import { bgGradient, matBlack } from "../constants/color";
+
+
+
 import { sampleChats, sampleUsers } from "../constants/sampleData";
 import UserItem from "../components/shared/UserItem";
 import { bgGradient } from "../constants/color";
+import { useMyGroupsQuery } from "../redux/api/api";
+import { useErrors } from "../hooks/hook";
+import { LayoutLoader } from "../components/layout/Loader";
+
 
 const ConfirmDeleteDialog = lazy(() =>
   import("../components/dialogs/ConfirmDeleteDialog")
@@ -38,8 +47,9 @@ const isAddMember = false;
 
 const Groups = () => {
   const chatId = useSearchParams()[0].get("group");
-
   const navigate = useNavigate();
+
+  const myGroups = useMyGroupsQuery("");
 
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -47,6 +57,15 @@ const Groups = () => {
 
   const [groupName, setGroupName] = useState("");
   const [groupNameUpdatedValue, setGroupNameUpdatedValue] = useState("");
+
+  const errors = [
+    {
+      isError: myGroups.isError,
+      error: myGroups.error,
+    },
+  ];
+
+  useErrors(errors);
 
   const navigateBack = () => {
     navigate("/");
@@ -192,7 +211,9 @@ const Groups = () => {
     </Stack>
   );
 
-  return (
+  return myGroups.isLoading ? (
+    <LayoutLoader />
+  ) : (
     <Grid container height={"100vh"}>
       <Grid
         item

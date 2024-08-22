@@ -1,6 +1,7 @@
 import {
   AppBar,
   Backdrop,
+  Badge,
   Box,
   IconButton,
   Toolbar,
@@ -27,9 +28,11 @@ import { useDispatch } from "react-redux";
 import { userNotExists } from "../../redux/reducers/auth";
 import {
   setIsMobile,
+  setIsNewGroup,
   setIsNotification,
   setIsSearch,
 } from "../../redux/reducers/misc";
+import { resetNotificationCount } from "../../redux/reducers/chat.js";
 
 const SearchDialog = lazy(() => import("../Specific/Search"));
 const NotificationDialog = lazy(() => import("../Specific/Notifications"));
@@ -39,15 +42,23 @@ const Hander = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { isSearch, isNotification } = useSelector((state) => state.misc);
+  const { isSearch, isNotification, isNewGroup } = useSelector(
+    (state) => state.misc
+  );
+  const { notificationCount } = useSelector((state) => state.chat);
 
-  const [isNewGroup, setIsNewGroup] = React.useState(false);
-
-  const IconBtn = ({ title, icon, onClick }) => {
+  const IconBtn = ({ title, icon, onClick, value }) => {
     return (
       <Tooltip title={title}>
         <IconButton color="inherit" size="large" onClick={onClick}>
-          {icon}
+          {value ? (
+            <Badge badgeContent={value} color="error">
+              {" "}
+              {icon}{" "}
+            </Badge>
+          ) : (
+            icon
+          )}
         </IconButton>
       </Tooltip>
     );
@@ -63,10 +74,13 @@ const Hander = () => {
   };
 
   const openNewGroup = () => {
-    setIsNewGroup((prev) => !prev);
+    dispatch(setIsNewGroup(true));
   };
 
-  const openNotification = () => dispatch(setIsNotification(true));
+  const openNotification = () => {
+    dispatch(setIsNotification(true));
+    dispatch(resetNotificationCount());
+  };
 
   const navigateToGroup = () => navigate("/groups");
 
@@ -133,6 +147,7 @@ const Hander = () => {
                 title={"Notifications"}
                 icon={<NotificationsIcon />}
                 onClick={openNotification}
+                value={notificationCount}
               />
 
               <IconBtn

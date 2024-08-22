@@ -1,5 +1,6 @@
 import { Grid, Skeleton, Stack } from "@mui/material";
 import React from "react";
+import { BouncingSkeleton } from "../Styles/StyledComponents";
 
 const LayoutLoader = () => {
   return (
@@ -16,11 +17,11 @@ const LayoutLoader = () => {
         <Skeleton variant="rectangular" />
       </Grid>
       <Grid item xs={12} sm={8} md={5} lg={6} height={"100%"}>
-       <Stack spacing={"1rem"}>
-       {Array.from({ length: 10 }).map((_, index) => (
-          <Skeleton key={index} variant="rounded" height={"5rem"} />
-        ))}
-       </Stack>
+        <Stack spacing={"1rem"}>
+          {Array.from({ length: 10 }).map((_, index) => (
+            <Skeleton key={index} variant="rounded" height={"5rem"} />
+          ))}
+        </Stack>
       </Grid>
 
       <Grid
@@ -38,4 +39,48 @@ const LayoutLoader = () => {
   );
 };
 
-export default LayoutLoader;
+const TypingLoader = () => {
+  return (
+    <Stack
+      spacing={"0.5rem"}
+      direction={"row"}
+      padding={"0.5rem"}
+      justifyContent={"center"}
+    >
+      <BouncingSkeleton
+        variant="circular"
+        width={15}
+        height={15}
+        style={{
+          animationDelay: "0.1s",
+        }}
+      />
+      <BouncingSkeleton
+        variant="circular"
+        width={15}
+        height={15}
+        style={{
+          animationDelay: "0.2s",
+        }}
+      />
+      <BouncingSkeleton
+        variant="circular"
+        width={15}
+        height={15}
+        style={{
+          animationDelay: "0.4s",
+        }}
+      />
+      <BouncingSkeleton
+        variant="circular"
+        width={15}
+        height={15}
+        style={{
+          animationDelay: "0.6s",
+        }}
+      />
+    </Stack>
+  );
+};
+
+export { LayoutLoader, TypingLoader };

@@ -1,37 +1,73 @@
 import { Drawer, Grid, Skeleton } from "@mui/material";
-import React from "react";
+import React, { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+import {
+  NEW_MESSAGE,
+  NEW_MESSAGE_ALERT,
+} from "../../../../Backend/constants/Events.js";
 import { useErrors } from "../../hooks/hook.jsx";
+import { useSocketEvents } from "../../hooks/useSocketEvents.js";
 import { useMyChatsQuery } from "../../redux/api/api.js";
 import { setIsMobile } from "../../redux/reducers/misc.js";
+import { newMessagesHandler } from "../../socket.js";
+import { getSocket } from "../../socket.jsx";
 import Title from "../shared/Title.jsx";
 import ChatList from "../Specific/ChatList.jsx";
 import Profile from "../Specific/Profile.jsx";
 import Header from "./Header.jsx";
-import { getSocket } from "../../socket.jsx";
+import { NEW_REQUEST } from "../../constants/events.js";
+import {
+  incrementNotification,
+  setNewMessagesAlert,
+} from "../../redux/reducers/chat.js";
+import { getOrSaveFromStorage } from "../../lib/features.js";
 
 const AppLayout = () => (WrappedComponent) => {
   return (props) => {
     const params = useParams();
-    const despatch = useDispatch();
+    const dispatch = useDispatch();
     const chatId = params.chatId;
 
     const socket = getSocket();
 
     const { isMobile } = useSelector((state) => state.misc);
     const { user } = useSelector((state) => state.auth);
+    const { newMessagesAlert } = useSelector((state) => state.auth);
 
-    const { isLoading, data, isError, error, refetch } = useMyChatsQuery("");
+    const { isLoading, data, isError, error } = useMyChatsQuery("");
 
     useErrors([{ isError, error }]);
+
+    useEffect(() => {
+      getOrSaveFromStorage({ key: NEW_MESSAGE_ALERT, value: newMessagesAlert });
+    }, [newMessagesAlert]);
 
     const handleDeleteChat = (event, _id, groupChat) => {
       event.preventDefault();
       console.log("Deleting chat with id: ", _id, " groupChat: ", groupChat);
     };
 
-    const handleMobileClose = () => despatch(setIsMobile(false));
+    const handleMobileClose = () => dispatch(setIsMobile(false));
+
+    const newMessageAlertHandler = useCallback(
+      (data) => {
+        if (data.chatId === chatId) return;
+
+        dispatch(setNewMessagesAlert(data));
+      },
+      [chatId]
+    );
+
+    const newRequestHandler = useCallback(() => {
+      dispatch(incrementNotification());
+    }, [dispatch]);
+
+    const eventHandlers = {
+      [NEW_MESSAGE_ALERT]: newMessageAlertHandler,
+      [NEW_REQUEST]: newMessageAlertHandler,
+    };
+    useSocketEvents(socket, eventHandlers);
 
     return (
       <>
@@ -46,6 +82,7 @@ const AppLayout = () => (WrappedComponent) => {
               chats={data?.chats}
               chatId={chatId}
               handleDeleteChat={handleDeleteChat}
+              newMessagesAlert={newMessagesAlert}
             />
           </Drawer>
         )}
@@ -67,6 +104,7 @@ const AppLayout = () => (WrappedComponent) => {
                 chats={data?.chats}
                 chatId={chatId}
                 handleDeleteChat={handleDeleteChat}
+                newMessagesAlert={newMessagesAlert}
               />
             )}
           </Grid>

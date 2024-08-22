@@ -10,7 +10,12 @@ import { v4 as uuid } from "uuid";
 import { errorMiddleware } from "./middlewares/error-middleware.js";
 import { connectDB } from "./utils/features.js";
 
-import { NEW_MESSAGE, NEW_MESSAGE_ALERT } from "./constants/Events.js";
+import {
+  NEW_MESSAGE,
+  NEW_MESSAGE_ALERT,
+  START_TYPING,
+  STOP_TYPING,
+} from "./constants/Events.js";
 import { getSokets } from "./lib/helper.js";
 import { Message } from "./models/message-models.js";
 import { corsOptions } from "./constants/config.js";
@@ -41,7 +46,7 @@ const io = new Server(server, {
   cors: corsOptions,
 });
 
-app.set("io",io);
+app.set("io", io);
 
 const port = process.env.PORT || 3000;
 const envMode = process.env.NODE_ENV.trim() || "PRODUCTION";
@@ -74,7 +79,7 @@ io.use((socket, next) => {
 
 io.on("connection", (socket) => {
   const user = socket.user;
-  
+
   userSocketIDs.set(user._id.toString(), socket.id);
   console.log("a user connected", socket.id);
 
@@ -109,6 +114,17 @@ io.on("connection", (socket) => {
     } catch (error) {
       console.log(error);
     }
+  });
+
+  socket.on(START_TYPING, ({ members, chatId }) => {
+    const membersSockets = getSokets(members);
+    socket.to(membersSockets).emit(START_TYPING, { chatId });
+  });
+
+
+  socket.on(STOP_TYPING, ({ members, chatId }) => {
+    const membersSockets = getSokets(members);
+    socket.to(membersSockets).emit(STOP_TYPING, { chatId });
   });
 
   socket.on("disconnect", () => {
