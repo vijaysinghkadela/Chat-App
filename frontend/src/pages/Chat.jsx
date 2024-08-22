@@ -17,10 +17,12 @@ import { useChatDetailsQuery, useGetMessagesQuery } from "../redux/api/api.js";
 import { removeNewMessagesAlert } from "../redux/reducers/chat.js";
 import { getSocket } from "../socket.jsx";
 import { TypingLoader } from "../components/layout/Loader.jsx";
+import { useNavigate } from "react-router-dom";
 
 const Chat = ({ chatId, user }) => {
   const socket = getSocket();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const containerRef = useRef(null);
   const bottomRef = useRef(null);
@@ -98,6 +100,10 @@ const Chat = ({ chatId, user }) => {
       });
   }, [messages]);
 
+  useEffect(() => {
+    if (chatDetails.isError) return navigate("/");
+  }, [chatDetails.isErrorcd]);
+
   const newMessagesListener = useCallback(
     (data) => {
       if (data.chatId !== chatId) return;
@@ -122,18 +128,21 @@ const Chat = ({ chatId, user }) => {
     [chatId]
   );
 
-  const alertListener = useCallback((content) => {
-    const messageForAlert = {
-      content,
-      sender: {
-        _id: "adijaoirhoi",
-        name: "Admin",
-      },
-      chat: chatId,
-      createdAt: new Date().toISOString(),
-    };
-    setMessages((prev) => [...prev, messageForAlert]);
-  }, [chatId]);
+  const alertListener = useCallback(
+    (content) => {
+      const messageForAlert = {
+        content,
+        sender: {
+          _id: "adijaoirhoi",
+          name: "Admin",
+        },
+        chat: chatId,
+        createdAt: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, messageForAlert]);
+    },
+    [chatId]
+  );
 
   const eventHandler = {
     [ALERT]: alertListener,

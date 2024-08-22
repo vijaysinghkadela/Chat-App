@@ -46,12 +46,15 @@ const NewGroup = () => {
         : [...prev, id]
     );
   };
-  console.log(selectedMembers);
+
   const SubmitHandler = () => {
     if (!groupName.value) return toast.error("Group Name is Required");
     if (selectedMembers.length < 2)
       return toast.error("Please Select Atleast 3 Members");
-    newGroup({ name: groupName.value, members: selectedMembers });
+    newGroup("Creating New Group...", {
+      name: groupName.value,
+      members: selectedMembers,
+    });
 
     closeHandler();
   };

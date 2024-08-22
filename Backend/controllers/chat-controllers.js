@@ -10,7 +10,11 @@ import { TryCatch } from "../middlewares/error-middleware.js";
 import { chat } from "../models/chat-models.js";
 import { Message } from "../models/message-models.js";
 import { User } from "../models/user-models.js";
-import { deleteFilesFromCloudinary, emitEvent, uploadFilesToCloudinary } from "../utils/features.js";
+import {
+  deleteFilesFromCloudinary,
+  emitEvent,
+  uploadFilesToCloudinary,
+} from "../utils/features.js";
 import { ErrorHandler } from "../utils/utility.js";
 
 // Create a new group chat and save it to the database
@@ -154,6 +158,8 @@ const removeMember = TryCatch(async (req, res, next) => {
   if (chat.members.length <= 3)
     return next(new ErrorHandler("Group must have at least 3 members", 400));
 
+  const allChatMembers = chat.members.map((i) => i.toString());
+
   chat.members = chat.members.filter(
     (member) => member.toString() !== userId.toString()
   );
@@ -167,7 +173,7 @@ const removeMember = TryCatch(async (req, res, next) => {
     `${userThatWillBeRemoved.name} has been removed from ${chat.name} Group`
   );
 
-  emitEvent(req, REFETCH_CHATS, chat.members);
+  emitEvent(req, REFETCH_CHATS, allChatMembers);
 
   return res
     .status(200)
@@ -214,7 +220,7 @@ const leaveGroup = TryCatch(async (req, res, next) => {
 
   return res
     .status(200)
-    .json({ success: true, message: "Member removed successfully" });
+    .json({ success: true, message: "Leave Group successfully" });
 });
 
 const sendAttachment = TryCatch(async (req, res, next) => {
@@ -372,6 +378,14 @@ const getMessages = TryCatch(async (req, res, next) => {
 
   const resultPerPage = 20;
   const skip = (page - 1) * resultPerPage;
+
+  const chat = await Chat.findById(chatId);
+
+  if (!chat) return next(new ErrorHandler("Chat not found", 404));
+  if (!chat.member.includes(req.user.toString()))
+    return next(
+      new ErrorHandler("You are not allowed to access this chat", 403)
+    );
 
   const [messages, totalMessagesCount] = await Promise.all([
     Message.find({ chat: chatId })

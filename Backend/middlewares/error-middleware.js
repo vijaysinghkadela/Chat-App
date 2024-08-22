@@ -17,10 +17,16 @@ const errorMiddleware = (error, req, res, next) => {
     error.statusCode = 400;
   }
 
-  return res.status(error.statusCode).json({
+  const response = {
     success: false,
-    message: envMode === "DEVELOPMENT" ? error : error.message,
-  });
+    message:  error.message,
+  }
+
+  if(envMode === "DEVELOPMENT"){
+    response.error = error;
+  }
+
+  return res.status(error.statusCode).json(response);
 };
 
 const TryCatch = (passedFunc) => async (req, res, next) => {
