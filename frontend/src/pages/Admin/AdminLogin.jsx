@@ -1,9 +1,9 @@
 import { useInputValidation } from "6pp";
 import { Button, Container, Paper, TextField } from "@mui/material";
 import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
 import { bgGradient } from "../../constants/color";
-import { useDispatch, useSelector } from "react-redux";
 import { adminLogin, getAdmin } from "../../redux/thunks/Admin-thunks";
 // Replace with your own logic to check if user is admin
 

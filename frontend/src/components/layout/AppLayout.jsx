@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { NEW_MESSAGE_ALERT } from "../../../../Backend/constants/Events.js";
-import { NEW_REQUEST, REFETCH_CHATS } from "../../constants/events.js";
+import { NEW_REQUEST, ONLINE_USERS, REFETCH_CHATS } from "../../constants/events.js";
 import { useErrors } from "../../hooks/hook.jsx";
 import { useSocketEvents } from "../../hooks/useSocketEvents.js";
 import { getOrSaveFromStorage } from "../../lib/features.js";
@@ -32,6 +32,8 @@ const AppLayout = () => (WrappedComponent) => {
 
     const chatId = params.chatId;
     const deleteMenuAnchor = useRef(null);
+
+    const [onlineUsers, setOnlineUsers] = useState([])
 
     const socket = getSocket();
 
@@ -73,10 +75,15 @@ const AppLayout = () => (WrappedComponent) => {
       navigate("/");
     }, [refetch, navigate]);
 
+    const onlineUsersListener = useCallback((data) => {
+     setOnlineUsers(data);
+    }, []);
+
     const eventHandlers = {
       [NEW_MESSAGE_ALERT]: newMessageAlertListener,
       [NEW_REQUEST]: newRequestListener,
       [REFETCH_CHATS]: refetchListener,
+      [ONLINE_USERS]: onlineUsersListener,
     };
     useSocketEvents(socket, eventHandlers);
 
@@ -98,6 +105,7 @@ const AppLayout = () => (WrappedComponent) => {
               chatId={chatId}
               handleDeleteChat={handleDeleteChat}
               newMessagesAlert={newMessagesAlert}
+              onlineUsers={onlineUsers}
             />
           </Drawer>
         )}
@@ -120,6 +128,7 @@ const AppLayout = () => (WrappedComponent) => {
                 chatId={chatId}
                 handleDeleteChat={handleDeleteChat}
                 newMessagesAlert={newMessagesAlert}
+                onlineUsers={onlineUsers}
               />
             )}
           </Grid>

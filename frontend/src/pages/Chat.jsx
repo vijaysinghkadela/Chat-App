@@ -11,7 +11,13 @@ import FileMenu from "../components/dialogs/FileMenu.jsx";
 import AppLayout from "../components/layout/AppLayout";
 import MessageComponents from "../components/shared/MessageComponents.jsx";
 import { grayColor, orange } from "../constants/color.js";
-import { ALERT, NEW_MESSAGE, START_TYPING } from "../constants/events.js";
+import {
+  ALERT,
+  CHAT_JOINED,
+  CHAT_LEAVED,
+  NEW_MESSAGE,
+  START_TYPING,
+} from "../constants/events.js";
 import { useErrors, useSocketEvent } from "../hooks/hook.jsx";
 import { useChatDetailsQuery, useGetMessagesQuery } from "../redux/api/api.js";
 import { removeNewMessagesAlert } from "../redux/reducers/chat.js";
@@ -83,6 +89,7 @@ const Chat = ({ chatId, user }) => {
   };
 
   useEffect(() => {
+    socket.emit(CHAT_JOINED, { userId: user._id, members });
     dispatch(removeNewMessagesAlert(chatId));
 
     return () => {
@@ -90,6 +97,7 @@ const Chat = ({ chatId, user }) => {
       setMessage("");
       setOldMessages([]);
       setPage(1);
+      socket.emit(CHAT_LEAVED, { userId: user._id, members });
     };
   }, [chatId]);
 

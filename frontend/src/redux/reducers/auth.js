@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { adminLogin, getAdmin } from "../thunks/Admin-thunks";
+import { adminLogin, adminLogout, getAdmin } from "../thunks/Admin-thunks";
 import toast from "react-hot-toast";
 const initialState = {
   user: null,
@@ -32,19 +32,23 @@ const authSlice = createSlice({
         toast.error(action.error.message);
       })
       .addCase(getAdmin.fulfilled, (state, action) => {
-        if(action.payload ){
-            state.isAdmin = true;
+        if (action.payload) {
+          state.isAdmin = true;
+        } else {
+          state.isAdmin = false;
         }
-      else{
+      })
+      .addCase(getAdmin.rejected, (state, action) => {
         state.isAdmin = false;
-      }
       })
-      .addCase(getAdmin.rejected, (state, action) => {
-        state.isAdmin = null;
+      .addCase(adminLogout.fulfilled, (state, action) => {
+        state.isAdmin = false;
+        toast.success(action.payload);
       })
-      .addCase(getAdmin.rejected, (state, action) => {
-        state.isAdmin = null;
-      })
+      .addCase(adminLogout.rejected, (state, action) => {
+        state.isAdmin = true;
+        toast.error(action.error.message);
+      });
   },
 });
 

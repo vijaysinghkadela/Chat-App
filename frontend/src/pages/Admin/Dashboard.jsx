@@ -1,3 +1,4 @@
+import { useFetchData } from "6pp";
 import {
   AdminPanelSettings as AdminPanelSettingsIcon,
   Group as GroupIcon,
@@ -5,18 +6,41 @@ import {
   Notifications as NotificationsIcon,
   Person as PersonIcon,
 } from "@mui/icons-material";
-import { Box, Container, Paper, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Container,
+  Paper,
+  Skeleton,
+  Stack,
+  Typography,
+} from "@mui/material";
 import moment from "moment";
 import React from "react";
 import AdminLayout from "../../components/layout/AdminLayout";
+import { DoughnutChart, LineChart } from "../../components/Specific/Charts";
 import {
   CurveButton,
   SearchField,
 } from "../../components/Styles/StyledComponents";
 import { matBlack } from "../../constants/color";
-import { DoughnutChart, LineChart } from "../../components/Specific/Charts";
+import { server } from "../../constants/config";
+import { useErrors } from "../../hooks/hook";
 
 const Dashboard = () => {
+  const { loading, data, error, refetch } = useFetchData(
+    `${server}/api/v1/admin/stats`,
+    "dashboard-stats"
+  );
+
+  const { stats } = data || {};
+
+  useErrors([
+    {
+      isError: error,
+      error: useErrors,
+    },
+  ]);
+
   const Appbar = () => (
     <Paper
       elevation={3}
@@ -66,84 +90,99 @@ const Dashboard = () => {
       alignItems={"center"}
       margin={"2rem 0"}
     >
-      <Widget title={"Users"} value={34} Icon={<PersonIcon />} />
-      <Widget title={"Chats"} value={2} Icon={<GroupIcon />} />
-      <Widget title={"Message"} value={34} Icon={<MessageIcon />} />
+      <Widget title={"Users"} value={stats?.usersCount} Icon={<PersonIcon />} />
+      <Widget
+        title={"Chats"}
+        value={stats?.totalChatsCount}
+        Icon={<GroupIcon />}
+      />
+      <Widget
+        title={"Message"}
+        value={stats?.messagesCount}
+        Icon={<MessageIcon />}
+      />
     </Stack>
   );
 
   return (
     <AdminLayout>
-      <Container component={"main"}>
-        {Appbar}
+      {loading ? (
+        <Skeleton height={"100vh"} />
+      ) : (
+        <Container component={"main"}>
+          {Appbar}
 
-        <Stack
-          direction={{
-            xs: "column",
-            lg: "row",
-          }}
-          flexWrap={"wrap"}
-          justifyContent={"center"}
-          alignItems={{
-            xs: "center",
-            lg: "stretch",
-          }}
-          sx={{
-            gap: "2rem",
-          }}
-        >
-          <Paper
-            elevation={3}
+          <Stack
+            direction={{
+              xs: "column",
+              lg: "row",
+            }}
+            flexWrap={"wrap"}
+            justifyContent={"center"}
+            alignItems={{
+              xs: "center",
+              lg: "stretch",
+            }}
             sx={{
-              padding: "2rem 3.5rem",
-              borderRadius: "1rem",
-              width: "100%",
-              maxWidth: "45rem",
+              gap: "2rem",
             }}
           >
-            <Typography margin={"2rem 0"} variant="h4">
-              Last Messages
-            </Typography>
-
-            <LineChart value={[65, 59, 80, 81, 5]} />
-          </Paper>
-
-          <Paper
-            elevation={3}
-            sx={{
-              padding: "1rem",
-              borderRadius: "1rem",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              width: { xs: "100%", sm: "50%" },
-              position: "relative",
-              width: "100%",
-              maxWidth: "25rem",
-            }}
-          >
-            <DoughnutChart
-              labels={["Single Chat", "Group Chats"]}
-              value={[26, 66]}
-            />
-
-            <Stack
-              position={"absolute"}
-              direction={"row"}
-              justifyContent={"center"}
-              alignItems={"center"}
-              spacing={"0.5rem"}
-              width={"100%"}
-              height={"100%"}
+            <Paper
+              elevation={3}
+              sx={{
+                padding: "2rem 3.5rem",
+                borderRadius: "1rem",
+                width: "100%",
+                maxWidth: "45rem",
+              }}
             >
-              <GroupIcon /> <Typography>VS</Typography>
-              <PersonIcon />
-            </Stack>
-          </Paper>
-        </Stack>
+              <Typography margin={"2rem 0"} variant="h4">
+                Last Messages
+              </Typography>
 
-        {Widgets}
-      </Container>
+              <LineChart value={stats?.messageChart || []} />
+            </Paper>
+
+            <Paper
+              elevation={3}
+              sx={{
+                padding: "1rem",
+                borderRadius: "1rem",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                width: { xs: "100%", sm: "50%" },
+                position: "relative",
+                width: "100%",
+                maxWidth: "25rem",
+              }}
+            >
+              <DoughnutChart
+                labels={["Single Chat", "Group Chats"]}
+                value={[
+                  stats?.totalChatsCount - stats?.groupsCount || 0,
+                  stats?.groupsCount || 0,
+                ]}
+              />
+
+              <Stack
+                position={"absolute"}
+                direction={"row"}
+                justifyContent={"center"}
+                alignItems={"center"}
+                spacing={"0.5rem"}
+                width={"100%"}
+                height={"100%"}
+              >
+                <GroupIcon /> <Typography>VS</Typography>
+                <PersonIcon />
+              </Stack>
+            </Paper>
+          </Stack>
+
+          {Widgets}
+        </Container>
+      )}
     </AdminLayout>
   );
 };
